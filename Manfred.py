@@ -12,7 +12,7 @@ from io import BytesIO
 intents = discord.Intents.default()
 intents.message_content = True  # Enable message content intent
 wall = False
-last_use = time.time()
+last_use = time.time() - 600
 timeout = 600
 with open("key.txt", 'r') as file:
     client = genai.Client(api_key=file.readline())
