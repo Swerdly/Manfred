@@ -13,7 +13,7 @@ intents = discord.Intents.default()
 intents.message_content = True  # Enable message content intent
 wall = False
 last_use = time.time() - 600
-timeout = 600
+timeout = 300
 with open("key.txt", 'r') as file:
     client = genai.Client(api_key=file.readline())
 def insert_image(connection, image_id, name, image_data):
