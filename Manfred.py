@@ -69,8 +69,10 @@ async def fuse(ctx):
             image = Image.open(BytesIO(image_parts[0]))
             image.save('fused.png')
             discord_file = discord.File('fused.png', filename="fused.png")
+            im1 = discord.File('temp_image1.jpg', filename="fused.png")
+            im2 = discord.File('temp_image2.jpg', filename="fused.png")
             last_use = time.time()
-            await ctx.send(file=discord_file)
+            await ctx.send(files=[discord_file,im1,im2])
 
     else:
         await ctx.send("No images found in the database.")
