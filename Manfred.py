@@ -13,7 +13,7 @@ intents = discord.Intents.default()
 intents.message_content = True  # Enable message content intent
 wall = False
 last_use = time.time() - 600
-timeout = 300
+timeout = 600
 with open("key.txt", 'r') as file:
     client = genai.Client(api_key=file.readline())
 def insert_image(connection, image_id, name, image_data):
@@ -38,7 +38,7 @@ async def fuse(ctx):
         await ctx.send(line)
         return
 
-    text_input = """you are being shown two images of creatures create a humorous combination of these two images, generate a generic background if neither image has one, otherwise use a background from one of the images"""
+    text_input = """create a combination of these two images, generate a generic background if neither image has one, otherwise use a background from one of the images, attempt to replace parts of one image with the other where they even vaguely match up, try and stylize the image so that the integrated image has a tone consistent witht the base"""
     connection = sqlite3.connect('images.db')
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM images ORDER BY RANDOM() LIMIT 1")
