@@ -38,6 +38,7 @@ async def fuse(ctx):
         await ctx.send(line)
         return
 
+    last_use = time.time()
     text_input = """create a combination of these two images, generate a generic background if neither image has one, otherwise use a background from one of the images, attempt to replace parts of one image with the other where they even vaguely match up, try and stylize the image so that the integrated image has a tone consistent witht the base"""
     connection = sqlite3.connect('images.db')
     cursor = connection.cursor()
@@ -71,7 +72,7 @@ async def fuse(ctx):
             discord_file = discord.File('fused.png', filename="fused.png")
             im1 = discord.File('temp_image1.jpg', filename="fused.png")
             im2 = discord.File('temp_image2.jpg', filename="fused.png")
-            last_use = time.time()
+            
             await ctx.send(files=[discord_file,im1,im2])
 
     else:
