@@ -57,7 +57,7 @@ async def model_call(image_one, image_two):
     therwise use a background from one of the images, 
     attempt to replace parts of one image with the other where they even vaguely match up, 
     try and stylize the image so that the integrated image has a tone consistent with the base, 
-    replace heads with other heads where possible, 
+    combine and fuse heads with other heads where possible, 
     try to blend things as much as possible,
     if one of the images contains text modify it to include things related to the other image"""
 
