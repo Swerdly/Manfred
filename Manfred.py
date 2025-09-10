@@ -8,7 +8,7 @@ from google import genai
 from google.genai import types
 from PIL import Image
 from io import BytesIO
-
+import filetype
 
 
 
@@ -51,36 +51,30 @@ async def on_ready():
     print(f'Logged in as the {bot.user.name}')
 
 
-async def model_call(image_one, image_two):
+async def model_call():
     text_input = """create a fusion of these two images, 
     generate a generic background if neither image has one, 
-    therwise use a background from one of the images, 
-    attempt to replace parts of one image with the other where they even vaguely match up, 
-    try and stylize the image so that the integrated image has a tone consistent with the base, 
+    otherwise use a background from one of the images, 
+    attempt to replace parts of one image with the other where they match up, 
+    try and stylize the image so that the integrated image has a consistent tone, 
     combine and fuse heads with other heads where possible, 
     try to blend things as much as possible,
     if one of the images contains text modify it to include things related to the other image"""
 
 
-    with open('temp_image1.jpg', 'wb') as file:
-        file.write(image_one[2])
-
-    with open('temp_image2.jpg', 'wb') as file:
-        file.write(image_two[2])
+   
 
     try:
-        # Check if images have been found and hand off to the model to merge
-        if image_one is not None and image_two is not None:
 
-            response = client.models.generate_content(
-                model="gemini-2.5-flash-image-preview",
-                contents=[Image.open('temp_image1.jpg'), Image.open('temp_image2.jpg'), text_input],
-            )
-            image_parts = [
-                part.inline_data.data
-                for part in response.candidates[0].content.parts
-                if part.inline_data
-            ]
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-image-preview",
+            contents=[Image.open('temp_image1.jpg'), Image.open('temp_image2.jpg'), text_input],
+        )
+        image_parts = [
+            part.inline_data.data
+            for part in response.candidates[0].content.parts
+            if part.inline_data
+        ]
     except Exception as e:
         debug = bot.get_channel(1412855362977009784)
         await debug.send(e)
@@ -91,7 +85,7 @@ async def model_call(image_one, image_two):
 @bot.command()
 async def fuse(ctx):
 
-    global last_use, debug
+    global last_use
 
     # Check if timeout has not yet elapsed
     if (time.time() - last_use) < timeout:
@@ -101,29 +95,43 @@ async def fuse(ctx):
 
     last_use = time.time()
     # Prompt for the model to use, purposefully generic as it has to match two random images
-
-
-    # Fetch two images to merge from db randomly
     connection = sqlite3.connect('images.db')
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM images ORDER BY RANDOM() LIMIT 2")
+    while(True):
 
-    image_one = cursor.fetchone()
+        # Fetch two images to merge from db randomly
 
-    image_two = cursor.fetchone()
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM images ORDER BY RANDOM() LIMIT 2")
 
-    cursor.close()
-    connection.close()
+        image_one = cursor.fetchone()
+
+        image_two = cursor.fetchone()
+
+        cursor.close()
+        with open('temp_image1.jpg', 'wb') as file:
+            file.write(image_one[2])
+
+        with open('temp_image2.jpg', 'wb') as file:
+            file.write(image_two[2])
+
+        if filetype.is_image("temp_image1.jpg") and filetype.is_image("temp_image2.jpg"):
+            connection.close()
+            break
 
 
-    parts = await model_call(image_one,image_two)
+
+
+
+
+
+    parts = await model_call()
 
     if parts:
         image = Image.open(BytesIO(parts[0]))
         image.save('fused.png')
         discord_file = discord.File('fused.png', filename="fused.png")
-        im1 = discord.File('temp_image1.jpg', filename="fused.png")
-        im2 = discord.File('temp_image2.jpg', filename="fused.png")
+        im1 = discord.File('temp_image1.jpg', filename="temp_image1.jpg")
+        im2 = discord.File('temp_image2.jpg', filename="temp_image2.jpg")
 
         # Send merged image and the components
         await ctx.send(files=[discord_file, im1, im2])
