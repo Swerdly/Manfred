@@ -52,23 +52,19 @@ async def on_ready():
 
 
 async def model_call():
-    text_input = """create a fusion of these two images, 
-    generate a generic background if neither image has one, 
-    otherwise use a background from one of the images, 
-    attempt to replace parts of one image with the other where they match up, 
+    text_input = """Merge these two images, 
+    use one of the backgrounds from the two images, 
     try and stylize the image so that the integrated image has a consistent tone, 
-    combine and fuse heads with other heads where possible, 
-    try to blend things as much as possible,
     if one of the images contains text modify it to include things related to the other image"""
 
 
    
 
     try:
-
+        new_size = (500, 500)
         response = client.models.generate_content(
             model="gemini-2.5-flash-image-preview",
-            contents=[Image.open('temp_image1.jpg'), Image.open('temp_image2.jpg'), text_input],
+            contents=[Image.open('temp_image1.jpg').resize(new_size), Image.open('temp_image2.jpg').resize(new_size), text_input],
         )
         image_parts = [
             part.inline_data.data
@@ -107,6 +103,7 @@ async def fuse(ctx):
 
         image_two = cursor.fetchone()
 
+
         cursor.close()
         with open('temp_image1.jpg', 'wb') as file:
             file.write(image_one[2])
@@ -118,8 +115,9 @@ async def fuse(ctx):
             connection.close()
             break
 
+        image_one = image_one.resize(800, 800)
 
-
+        image_two = image_two.resize(800, 800)
 
 
 
