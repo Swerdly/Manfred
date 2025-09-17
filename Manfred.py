@@ -61,7 +61,7 @@ async def model_call():
    
 
     try:
-        new_size = (500, 500)
+        new_size = (350,350)
         response = client.models.generate_content(
             model="gemini-2.5-flash-image-preview",
             contents=[Image.open('temp_image1.jpg').resize(new_size), Image.open('temp_image2.jpg').resize(new_size), text_input],
@@ -71,12 +71,13 @@ async def model_call():
             for part in response.candidates[0].content.parts
             if part.inline_data
         ]
+        return image_parts
     except Exception as e:
         debug = bot.get_channel(1412855362977009784)
         await debug.send(e)
 
 
-    return image_parts
+
 
 @bot.command()
 async def fuse(ctx):
