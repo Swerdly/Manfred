@@ -52,16 +52,20 @@ async def on_ready():
 
 
 async def model_call():
-    text_input = """Merge these two images, 
-    use one of the backgrounds from the two images, 
+    text_input = """create a fusion of these two images, 
+    generate a generic background if neither image has one, 
+    otherwise use a background from one of the images, 
+    attempt to replace parts of one image with the other where they match up, 
     try and stylize the image so that the integrated image has a consistent tone, 
+    combine and fuse heads with other heads where possible, 
+    try to blend things as much as possible,
     if one of the images contains text modify it to include things related to the other image"""
 
 
    
 
     try:
-        new_size = (350,350)
+        new_size = (250, 250)
         response = client.models.generate_content(
             model="gemini-2.5-flash-image-preview",
             contents=[Image.open('temp_image1.jpg').resize(new_size), Image.open('temp_image2.jpg').resize(new_size), text_input],
