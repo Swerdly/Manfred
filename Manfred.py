@@ -53,12 +53,12 @@ async def on_ready():
 
 async def model_call():
     text_input = """create a fusion of these two images, 
-    generate a generic background if neither image has one, 
+    generate a generic background if neither has one, 
     otherwise use a background from one of the images, 
     attempt to replace parts of one image with the other where they match up, 
     try and stylize the image so that the integrated image has a consistent tone, 
     combine and fuse heads with other heads where possible, 
-    try to blend things as much as possible,
+    try to blend things,
     if one of the images contains text modify it to include things related to the other image"""
 
 
@@ -75,6 +75,7 @@ async def model_call():
             for part in response.candidates[0].content.parts
             if part.inline_data
         ]
+
         return image_parts
     except Exception as e:
         debug = bot.get_channel(1412855362977009784)
@@ -85,7 +86,7 @@ async def model_call():
 
 @bot.command()
 async def fuse(ctx):
-
+    print("working on it")
     global last_use
 
     # Check if timeout has not yet elapsed
@@ -102,7 +103,7 @@ async def fuse(ctx):
         # Fetch two images to merge from db randomly
 
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM images ORDER BY RANDOM() LIMIT 2")
+        cursor.execute("SELECT * FROM images WHERE name like '%png' OR name like '%webp' OR name like '%jpg' ORDER BY RANDOM() LIMIT 2")
 
         image_one = cursor.fetchone()
 
