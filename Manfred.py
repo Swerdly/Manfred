@@ -19,8 +19,9 @@ intents.message_content = True  # Enable message content intent
 # Global variable to lock out commands
 wall = False
 
-# Global variable to track previous use times
-last_use = time.time() - 600
+# Global variables to track previous use times
+fuse_last_use = time.time() - 600
+fusion_last_use = time.time() - 600
 
 # Length of timeout on commands with limits
 timeout = 300
@@ -51,7 +52,7 @@ async def on_ready():
     print(f'Logged in as the {bot.user.name}')
 
 
-async def model_call():
+async def model_call(ctx):
     text_input = """create a fusion of these two images, 
     generate a generic background if neither has one, 
     otherwise use a background from one of the images, 
@@ -62,7 +63,6 @@ async def model_call():
     if one of the images contains text modify it to include things related to the other image"""
 
 
-   
 
     try:
         new_size = (250, 250)
@@ -82,21 +82,64 @@ async def model_call():
         await debug.send(e)
 
 
+@bot.command()
+async def fusion(ctx):
+    print("working on it")
+    global fusion_last_use
 
+    # Check if timeout has not yet elapsed
+    if (time.time() - fusion_last_use) < timeout:
+        line = "gotta wait " + str(round(timeout - (time.time() - fusion_last_use))) + " seconds for !fusion buddy"
+        await ctx.send(line)
+        return
+
+    fusion_last_use = time.time()
+
+    if ctx.message.attachments:
+
+        if len(ctx.message.attachments) == 2:
+            image_data_1 = await ctx.message.attachments[0].read()
+            with open('temp_image1.jpg', 'wb') as file:
+                file.write(image_data_1)
+
+            image_data_2 = await ctx.message.attachments[1].read()
+            with open('temp_image2.jpg', 'wb') as file:
+                file.write(image_data_2)
+
+        else:
+            await ctx.send("Gotta attach 2 images to do that")
+            return
+
+    parts = await model_call(ctx)
+
+    if parts:
+        image = Image.open(BytesIO(parts[0]))
+        image.save('fused.png')
+        discord_file = discord.File('fused.png', filename="fused.png")
+
+
+        # Send merged image and the components
+        await ctx.send(files=[discord_file])
+
+    else:
+        await ctx.send("No images found in the database.")
+
+
+    return
 
 @bot.command()
 async def fuse(ctx):
     print("working on it")
-    global last_use
+    global fuse_last_use
 
     # Check if timeout has not yet elapsed
-    if (time.time() - last_use) < timeout:
-        line = "gotta wait " + str(round(timeout - (time.time() - last_use))) + " seconds buddy"
+    if (time.time() - fuse_last_use) < timeout:
+        line = "gotta wait " + str(round(timeout - (time.time() - fuse_last_use))) + " seconds for !fuse buddy"
         await ctx.send(line)
         return
 
-    last_use = time.time()
-    # Prompt for the model to use, purposefully generic as it has to match two random images
+    fuse_last_use = time.time()
+
     connection = sqlite3.connect('images.db')
     while(True):
 
@@ -128,7 +171,7 @@ async def fuse(ctx):
 
 
 
-    parts = await model_call()
+    parts = await model_call(ctx)
 
     if parts:
         image = Image.open(BytesIO(parts[0]))
