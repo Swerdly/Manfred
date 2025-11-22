@@ -21,7 +21,7 @@ wall = False
 
 # Global variables to track previous use times
 fuse_last_use = time.time() - 600
-fusion_last_use = time.time() - 600
+merge_last_use = time.time() - 600
 
 # Length of timeout on commands with limits
 timeout = 300
@@ -83,17 +83,17 @@ async def model_call(ctx):
 
 
 @bot.command()
-async def fusion(ctx):
+async def merge(ctx):
     print("working on it")
-    global fusion_last_use
+    global merge_last_use
 
     # Check if timeout has not yet elapsed
-    if (time.time() - fusion_last_use) < timeout:
-        line = "gotta wait " + str(round(timeout - (time.time() - fusion_last_use))) + " seconds for !fusion buddy"
+    if (time.time() - merge_last_use) < timeout:
+        line = "gotta wait " + str(round(timeout - (time.time() - merge_last_use))) + " seconds for !merge buddy"
         await ctx.send(line)
         return
 
-    fusion_last_use = time.time()
+    merge_last_use = time.time()
 
     if ctx.message.attachments:
 
