@@ -83,6 +83,14 @@ async def model_call(ctx):
         debug = bot.get_channel(1412855362977009784)
         await debug.send(e)
 
+@bot.command()
+@discord.ext.commands.is_owner()
+async def reset(ctx):
+    global merge_last_use
+    global fuse_last_use
+
+    merge_last_use = time.time() - 600
+    fuse_last_use = time.time() - 600
 
 @bot.command()
 async def merge(ctx):
