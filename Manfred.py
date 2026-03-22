@@ -50,24 +50,26 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 @bot.event
 async def on_ready():
     print(f'Logged in as the {bot.user.name}')
-
+# Run this to see exactly what strings you can use
+    for model in client.models.list():
+        print(f"Model Name: {model.name} ")
 
 async def model_call(ctx):
     text_input = """create a fusion of these two images, 
     generate a generic background if neither has one, 
     otherwise use a background from one of the images, 
     attempt to replace parts of one image with the other where they match up, 
-    try and stylize the image so that the integrated image has a consistent tone, 
-    combine and fuse heads with other heads where possible, 
+    try and stylize the image so that the mixed image has a consistent tone, 
+    combine and swap body parts, 
     try to blend things,
-    if one of the images contains text modify it to include things related to the other image"""
+    if one of the images contains text match its content to the other image"""
 
 
 
     try:
         new_size = (250, 250)
         response = client.models.generate_content(
-            model="gemini-2.5-flash-image-preview",
+            model="gemini-3.1-flash-image-preview",
             contents=[Image.open('temp_image1.jpg').resize(new_size), Image.open('temp_image2.jpg').resize(new_size), text_input],
         )
         image_parts = [
